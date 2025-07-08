@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import Axios from 'axios';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
@@ -11,10 +11,10 @@ export const AppProvider = ({ children }) => {
 
     const navigate = useNavigate();
     const [token, settoken] = useState(null);
-    const [blog, setBlogs] = useState([]);
+    const [blogs, setBlogs] = useState([]);
     const [input, setInput] = useState('');
 
-    const value = { axios, navigate, token, settoken, blog, setBlogs, input, setInput };
+    const value = { axios, navigate, token, settoken, blogs, setBlogs, input, setInput };
 
     const fetchBlogs = async () => {
         try {

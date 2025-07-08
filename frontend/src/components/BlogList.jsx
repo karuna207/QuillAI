@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
-import { blog_data, blogCategories } from '../assets/assets';
+import { blogCategories } from '../assets/assets';
 import BlogCard from './BlogCard';
+import { useAppContext } from '../context/AppContext';
 
 const BlogList = () => {
-  const [menu, setMenu] = useState('All');
+  const [menu, setMenu] = useState('All'); 
+  const { input, blogs } = useAppContext(); 
+
+  const filteredBlogs = () => {
+    if (input === '') {
+      return blogs;
+    }
+    return blogs.filter((blog) =>
+      blog.title.toLowerCase().includes(input.toLowerCase()) ||
+      blog.category.toLowerCase().includes(input.toLowerCase())
+    );
+  };
 
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-24 py-10">
@@ -20,7 +32,6 @@ const BlogList = () => {
               }`}
             >
               {item}
-              {/* Optional ring effect */}
               {menu === item && (
                 <span className="absolute inset-0 rounded-full ring-2 ring-blue-600 animate-pulse"></span>
               )}
@@ -31,7 +42,7 @@ const BlogList = () => {
 
       {/* Blog Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blog_data
+        {filteredBlogs()
           .filter((blog) => (menu === 'All' ? true : menu === blog.category))
           .map((blog) => (
             <BlogCard key={blog._id} blog={blog} />

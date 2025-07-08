@@ -5,7 +5,7 @@ import { useAppContext } from '../context/AppContext';
 
 const Navbar = () => { 
 
-    const {navigate}=useAppContext();
+    const {navigate,token}=useAppContext();
   return (
     <div className="flex justify-between items-center px-6 py-4 bg-white shadow-md ">
       <img onClick={()=>{navigate('/')}} src={assets.logo} alt="logo" className="h-10 cursor-pointer" />
