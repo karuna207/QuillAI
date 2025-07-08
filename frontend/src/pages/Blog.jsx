@@ -2,37 +2,57 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { assets, blog_data, comments_data } from '../assets/assets';
 import Navbar from '../components/Navbar';
-import moment from 'moment/moment'; 
-import Footer from '../components/Footer'; 
+import moment from 'moment/moment';
+import Footer from '../components/Footer';
 import Loader from '../components/Loader';
+import { useAppContext } from '../context/AppContext';
+import toast from 'react-hot-toast';
 
 const Blog = () => {
     const { id } = useParams();
+
+    const { axios } = useAppContext();
     const [blogData, setblogData] = useState(null);
-    const [comments, setcomments] = useState([]); 
+    const [comments, setcomments] = useState([]);
     const [name, setName] = useState('');
-    const [content, setContent] = useState('');    
+    const [content, setContent] = useState('');
 
     const fetchBlogData = async () => {
-        const data = blog_data.find((blog) => blog._id == id);
-        setblogData(data);
+        try {
+            const { data } = await axios.get(`/api/blog/${id}`);
+            data.success ? setblogData(data.blog) : toast.error(data.message)
+        } catch (error) {
+            toast.error(error.message);
+        }
     };
 
     const fetchComments = async () => {
-        setcomments(comments_data);
+        try {
+            const { data } = await axios.post(`/api/blog/comments`, { blogId: id })
+            if (data.success) {
+                setcomments(data.comments);
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
     };
 
     const addComment = async (e) => {
         e.preventDefault();
-        // Here, you could add logic to actually submit the comment
-        const newComment = {
-            name,
-            content,
-            createdAt: new Date().toISOString(),
-        };
-        setcomments([newComment, ...comments]);
-        setName('');
-        setContent('');
+        try {
+            const { data } = await axios.post('/api/blog/add-comment', { blog: id, name, content })
+            if (data.success) {
+                toast.success(data.message);
+                setName('');
+                setContent('');
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
     };
 
     useEffect(() => {
@@ -103,7 +123,7 @@ const Blog = () => {
                                 </div>
                             ))}
                         </div>
-                    </div> 
+                    </div>
 
                     {/* Add Comment Section */}
                     <div className="mt-12">
@@ -134,7 +154,7 @@ const Blog = () => {
                                 Submit
                             </button>
                         </form>
-                    </div> 
+                    </div>
 
                     {/* Share Section */}
                     <div className="mt-12">
@@ -151,7 +171,7 @@ const Blog = () => {
             <Footer />
         </div>
     ) : (
-        <Loader/>
+        <Loader />
     );
 };
 
