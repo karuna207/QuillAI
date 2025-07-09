@@ -91,7 +91,7 @@ export const approveCommentById = async (req, res) => {
         });
         res.json({
             success:true,
-            message:"Comment deleted Successfully"
+            message:"Comment Approved Successfully"
         }); 
     } catch (error) {
         res.json({
