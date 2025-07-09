@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { assets, dashboard_data } from '../../assets/assets';
 import BlogTableItem from '../../components/admin/BlogTableItem';
+import { useAppContext } from '../../context/AppContext';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -10,8 +12,27 @@ const Dashboard = () => {
     recentBlogs: [],
   });
 
-  const fetchDashboard = () => {
-    setDashboardData(dashboard_data);
+  const { axios } = useAppContext();
+
+  const fetchDashboard = async () => {
+    try {
+      const { data } = await axios.get('/api/admin/dashboard');
+      if (data.success) {
+        setDashboardData({
+          blogs: data.dashboardData.blogCount,
+          comments: data.dashboardData.commentCount,
+          drafts: data.dashboardData.draftCount,
+          recentBlogs: data.dashboardData.recentBlogs
+        });
+  
+      } else {
+        
+        toast.error(data.message);
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -69,8 +90,8 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {dashboardData.recentBlogs.map((blog,index)=>{
-                return <BlogTableItem key={blog._id} blog={blog} fetchBlogs={fetchDashboard} index={index+1}/>
+              {dashboardData.recentBlogs.map((blog, index) => {
+                return <BlogTableItem key={blog._id} blog={blog} fetchBlogs={fetchDashboard} index={index + 1} />
               })}
 
             </tbody>
