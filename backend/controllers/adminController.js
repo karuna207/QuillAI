@@ -20,7 +20,7 @@ export const getAllBlogsAdmin = async (req, res) => {
         const blogs = await Blog.find({}).sort({ createdAt: -1 });
         res.json({
             success: true,
-            token
+            blogs
         });
     } catch (error) {
         res.json({ success: false, message: error.message });
