@@ -5,9 +5,12 @@ import Sidebar from '../../components/admin/Sidebar';
 import { useAppContext } from '../../context/AppContext';
 
 const Layout = () => {
-  const {navigate,token} = useAppContext();
-
-  const logout = () => {
+  const {navigate,token,settoken,axios} = useAppContext();
+  
+  const logout = () => { 
+    localStorage.removeItem('token');
+    axios.defaults.headers.common['Authorization']=null;
+    settoken(null);
     navigate('/');
   };
 

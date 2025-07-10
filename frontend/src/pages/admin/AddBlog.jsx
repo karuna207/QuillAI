@@ -2,14 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { assets, blogCategories } from '../../assets/assets';
 import Quill from 'quill';
 import { useAppContext } from '../../context/AppContext';
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; 
+import {parse} from 'marked';
 
 const AddBlog = () => {
   const editorref = useRef();
   const quillref = useRef();
 
   const { axios } = useAppContext();
-  const [isAdding, setIsAdding] = useState(false)
+  const [isAdding, setIsAdding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [image, setImage] = useState(false);
   const [title, setTitle] = useState('');
@@ -18,7 +20,26 @@ const AddBlog = () => {
   const [isPublished, setisPublished] = useState(false);
 
   const generateContent = async () => {
-    // Placeholder for future AI content generation
+    // Placeholder for future AI content generation  
+    if (!title) {
+      toast.error("Please enter the title")
+    }
+
+    try {
+      setIsLoading(true);
+      const { data } =await axios.post('/api/blog/generate',{prompt:title});
+      if(data.success){ 
+        quillref.current.root.innerHTML=parse(data.content)
+      }else{
+        toast.error(data.message);
+      }
+    } catch (error) {
+        toast.error(error.message);
+    }finally{
+      setIsLoading(false);
+    }
+
+
   };
 
   const onSubmitHandler = async (e) => {
@@ -109,7 +130,8 @@ const AddBlog = () => {
           <div className="border border-gray-300 rounded-md mb-2">
             <div ref={editorref} className="min-h-[200px] p-2" />
           </div>
-          <button
+          <button 
+            disabled={isLoading}
             type="button"
             onClick={generateContent}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
