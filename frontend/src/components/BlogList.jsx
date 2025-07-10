@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { blogCategories } from '../assets/assets';
-import BlogCard from './BlogCard';
-import { useAppContext } from '../context/AppContext';
+import { blogCategories } from '../assets/assets.js';
+import BlogCard from './BlogCard.jsx';
+import { useAppContext } from '../context/AppContext.jsx';
 
 const BlogList = () => {
   const [menu, setMenu] = useState('All'); 
