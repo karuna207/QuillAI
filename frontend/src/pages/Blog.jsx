@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Loader from '../components/Loader';
 import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
+import html2pdf from 'html2pdf.js';
 import { useRef } from 'react';
 
 const Blog = () => {
@@ -20,6 +21,22 @@ const Blog = () => {
 
     const [speechStatus, setSpeechStatus] = useState('stopped'); // 'playing', 'paused', 'stopped'
     const utteranceRef = useRef(null);
+    const blogRef = useRef(null);
+
+    const downloadPDF = () => {
+        const element = blogRef.current;
+        const options = {
+            margin: 0.5,
+            filename: `${blogData.title.replace(/\s+/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+
+        html2pdf().set(options).from(element).save();
+    };
+
 
 
     const stripHtml = (html) => {
@@ -98,25 +115,6 @@ const Blog = () => {
         }
     };
 
-    // const handleTextToSpeech = async () => {
-    //     try {
-    //         const { data } = await axios.post('/api/blog/text-to-speech', {
-    //             blogId: id,
-    //         });
-    //         if (data.success) {
-    //             toast.success('Text-to-Speech initiated!');
-    //             if (data.audioUrl) {
-    //                 const audio = new Audio(data.audioUrl);
-    //                 audio.play();
-    //             }
-    //         } else {
-    //             toast.error("Else");
-    //             toast.error(data.message);
-    //         }
-    //     } catch (error) {
-    //         toast.error(error.message);
-    //     }
-    // };
 
     useEffect(() => {
         fetchBlogData();
@@ -141,49 +139,59 @@ const Blog = () => {
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{blogData.title}</h1>
                 <h2 className="text-xl text-gray-700 mb-2">{blogData.subTitle}</h2>
 
-                {/* ✅ Text to Speech Button */}
-                <button
-                    onClick={() => speakText(blogData.description)}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition mb-6"
-                >
-                    Text to Speech
-                </button>
-
-                {speechStatus === 'playing' && (
+                {/* ✅ Buttons with spacing */}
+                <div className="flex flex-wrap gap-3 mb-6">
                     <button
-                        onClick={() => {
-                            window.speechSynthesis.pause();
-                            setSpeechStatus('paused');
-                        }}
-                        className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition mb-6 ml-2"
+                        onClick={() => speakText(blogData.description)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
                     >
-                        Pause
+                        Text to Speech
                     </button>
-                )}
 
-                {speechStatus === 'paused' && (
-                    <button
-                        onClick={() => {
-                            window.speechSynthesis.resume();
-                            setSpeechStatus('playing');
-                        }}
-                        className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition mb-6 ml-2"
-                    >
-                        Resume
-                    </button>
-                )}
+                    {speechStatus === 'playing' && (
+                        <button
+                            onClick={() => {
+                                window.speechSynthesis.pause();
+                                setSpeechStatus('paused');
+                            }}
+                            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition"
+                        >
+                            Pause
+                        </button>
+                    )}
 
-                {speechStatus !== 'stopped' && (
+                    {speechStatus === 'paused' && (
+                        <button
+                            onClick={() => {
+                                window.speechSynthesis.resume();
+                                setSpeechStatus('playing');
+                            }}
+                            className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition"
+                        >
+                            Resume
+                        </button>
+                    )}
+
+                    {speechStatus !== 'stopped' && (
+                        <button
+                            onClick={() => {
+                                window.speechSynthesis.cancel();
+                                setSpeechStatus('stopped');
+                            }}
+                            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                        >
+                            Stop
+                        </button>
+                    )}
+
                     <button
-                        onClick={() => {
-                            window.speechSynthesis.cancel();
-                            setSpeechStatus('stopped');
-                        }}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition mb-6 ml-2"
+                        onClick={downloadPDF}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
                     >
-                        Stop
+                        Download as PDF
                     </button>
-                )}
+                </div>
+
 
 
                 <p className="text-base text-gray-600 mb-8">
@@ -197,7 +205,7 @@ const Blog = () => {
                 />
 
                 <div className="rich-text text-[15px] leading-relaxed text-gray-800">
-                    <div dangerouslySetInnerHTML={{ __html: blogData.description }}></div>
+                    <div ref={blogRef} dangerouslySetInnerHTML={{ __html: blogData.description }}></div>
 
                     {/* Comments */}
                     <div className="mt-12">
