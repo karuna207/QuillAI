@@ -23,18 +23,23 @@ const Blog = () => {
     const utteranceRef = useRef(null);
     const blogRef = useRef(null);
 
-    const downloadPDF = () => {
-        const element = blogRef.current;
-        const options = {
-            margin: 0.5,
-            filename: `${blogData.title.replace(/\s+/g, '_')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
+    const downloadPDF = async () => {
+        try {
+            const response = await axios.get(`/generate-pdf?id=${id}`, {
+                responseType: 'blob', // Important for handling binary data
+            });
 
-
-        html2pdf().set(options).from(element).save();
+            // Create a link and trigger download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `blog-${id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('PDF download failed:', error);
+        }
     };
 
 
