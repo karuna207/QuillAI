@@ -3,7 +3,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import connectDB from './configs/db.js';
 import adminRouter from './routes/adminRoutes.js';
-import blogRouter from './routes/blogRoutes.js'; 
+import blogRouter from './routes/blogRoutes.js';
 import puppeteer from 'puppeteer';
 
 const app = express();
@@ -50,7 +50,8 @@ app.get('/generate-pdf', async (req, res) => {
 
         res.send(pdfBuffer);
     } catch (err) {
-        res.status(500).send('PDF generation failed');
+        console.error("PDF Generation Error:", err);
+        res.status(500).send(`PDF generation failed: ${err.message}`);
     }
 });
 
